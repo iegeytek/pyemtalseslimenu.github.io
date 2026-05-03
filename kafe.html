@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Restoran - Sesli Menü</title>
+  <style>
+    /* --- RENK PALETİ --- */
+    :root{
+      --bg-cream: #fdf5e6;   /* Tatlı Krem Arka Plan */
+      --card-bg: #ffffff;    
+      --coffee-deep: #3e2723; /* Dip Kahve (Ana Renk) */
+      --foam: #d7ccc8;       /* Köpük */
+      --text-main: #2b1b17;
+      --text-light: #5d4037;
+      --highlight: #d84315;
+      --price-bg: #e8f5e9;   /* Yeşil Fiyat Arka Planı */
+      --price-text: #2e7d32; /* Yeşil Fiyat Yazısı */
+    }
+    
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow-x: hidden;}
+    
+    body{
+      display:flex; justify-content:center; align-items: flex-start;
+      /* Alttaki denizin üstüne binmemesi için alt boşluk */
+      padding: 40px 20px 45vh 20px; 
+      font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      box-sizing: border-box; 
+      color: var(--text-main);
+      background-color: var(--bg-cream);
+    }
+
+    /* --- KAHVE OKYANUSU (ALT BLOK) --- */
+    .ocean-container {
+      position: fixed;
+      bottom: 0; 
+      left: 0;
+      width: 100%;
+      height: 45vh; /* Ekranın %40'ı dolu kahve */
+      background-color: var(--coffee-deep); /* KESİNTİSİZ GÖRÜNÜM İÇİN */
+      z-index: -1;
+    }
+
+    /* --- DALGALAR (ÜST GEÇİŞ) --- */
+    .waves {
+      position: absolute;
+      top: -140px; /* Bloğun tepesine çıkartıyoruz */
+      left: 0;
+      width: 100%;
+      height: 150px;
+      margin-bottom: -1px; /* Çizgi oluşumunu engelle */
+    }
+
+    /* Dalga Animasyonları */
+    .parallax > use {
+      animation: move-forever 25s cubic-bezier(.55,.5,.45,.5) infinite;
+    }
+    .parallax > use:nth-child(1) {
+      animation-delay: -2s; animation-duration: 7s;
+      fill: rgba(255, 255, 255, 0.3); /* En arkadaki şeffaf köpük */
+    }
+    .parallax > use:nth-child(2) {
+      animation-delay: -3s; animation-duration: 10s;
+      fill: rgba(255, 255, 255, 0.5); /* Orta köpük */
+    }
+    .parallax > use:nth-child(3) {
+      animation-delay: -4s; animation-duration: 13s;
+      fill: var(--coffee-deep); /* Ana kahveyle birleşen dalga */
+    }
+    
+    @keyframes move-forever {
+      0% { transform: translate3d(-90px,0,0); }
+      100% { transform: translate3d(85px,0,0); }
+    }
+
+    /* --- YÜZEYDE YÜZEN NESNELER --- */
+    .surface-item {
+        position: absolute;
+        top: -60px; /* Dalganın üstünde dursun */
+        z-index: 5;
+        font-size: 3.5rem;
+        filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+        animation: bobbing 3s ease-in-out infinite alternate;
+        user-select: none;
+    }
+
+    @keyframes bobbing {
+        0% { transform: translateY(0) rotate(-5deg); }
+        100% { transform: translateY(20px) rotate(5deg); }
+    }
+
+    /* Rastgele Konumlandırma */
+    .i1 { left: 5%;  animation-duration: 3s; font-size: 4rem; top: -80px; } /* Kruvasan */
+    .i2 { left: 80%; animation-duration: 4s; font-size: 3.5rem; top: -50px; } /* Donut */
+    .i3 { left: 40%; animation-duration: 2.5s; font-size: 4.5rem; top: -70px; } /* Pasta */
+    .i4 { left: 20%; animation-duration: 3.5s; font-size: 3rem; top: -40px; opacity: 0.9; } /* Kahve */
+    .i5 { left: 60%; animation-duration: 5s; font-size: 3.8rem; top: -60px; } /* Kurabiye */
+    .i6 { left: 90%; animation-duration: 4.5s; font-size: 3rem; top: -50px; } /* Tost */
+
+
+    /* --- KART TASARIMI --- */
+    .card{
+      max-width: 800px; width:100%;
+      background: var(--card-bg);
+      border-radius: 24px; padding: 40px; 
+      /* Kartın gölgesi */
+      box-shadow: 0 20px 60px rgba(62, 39, 35, 0.15);
+      position: relative; 
+      /* Kartın kendisi de çok hafif yüzsün */
+      animation: floatCard 6s ease-in-out infinite;
+    }
+    @keyframes floatCard { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    
+    h1{ font-size: 34px; font-weight: 800; text-align: center; margin: 0 0 10px; color: var(--text-main); }
+    p.lead{ font-size: 18px; text-align: center; color: var(--text-light); margin:0 0 25px; line-height: 1.6; }
+    
+    /* BUTONLAR */
+    .bigbtn{
+      display:block; width:100%; margin: 20px 0; padding: 20px; 
+      border-radius: 14px; background: var(--text-light); color: #fff; 
+      text-decoration:none; font-size: 20px; font-weight: 700; border: none;
+      cursor:pointer; text-align:center; transition: all 0.3s ease;
+      box-shadow: 0 6px 15px rgba(93, 64, 55, 0.3);
+    }
+    .bigbtn:hover{ background: var(--text-main); transform: translateY(-3px); }
+    .bigbtn:active{ transform: scale(0.98); }
+    .bigbtn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    /* DURUM ALANI */
+    .status{
+      margin-top:15px; padding: 12px; font-size: 16px; text-align: center;
+      border-radius: 10px; background: #fff3e0; border: 1px solid #ffe0b2;
+      color: var(--text-light); font-weight: 600;
+    }
+    
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    hr { border: 0; border-top: 2px dashed #e0e0e0; margin: 25px 0; }
+
+    /* --- IZGARA (GRID) MENÜ --- */
+    ul#kategori {
+        list-style: none; padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+        gap: 20px;
+    }
+
+    ul#kategori > li {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        transition: transform 0.3s, border-color 0.3s;
+    }
+    ul#kategori > li:hover {
+        transform: translateY(-3px);
+        border-color: var(--foam);
+    }
+
+    ul ul { padding: 0; margin-top: 10px; margin-bottom: 0; }
+    
+    ul ul li { 
+      margin-bottom: 8px; color: var(--text-main); font-size: 17px; 
+      border-bottom: 1px solid rgba(93, 64, 55, 0.08); padding: 8px 5px; 
+      display: flex; justify-content: space-between; align-items: center;
+      transition: background 0.3s; border-radius: 6px;
+    } 
+    ul ul li:last-child { border-bottom: none; }
+
+    ins { text-decoration: none; display: block; margin-bottom: 12px; }
+    ins strong { 
+      font-size: 1.4em; color: var(--text-main); display: flex; align-items: center; 
+      padding-bottom: 8px; border-bottom: 3px solid var(--text-main);
+      transition: color 0.3s, border-color 0.3s;
+    } 
+    .emoji{ margin-right: 10px; font-size: 1.2em; }
+    
+    /* YEŞİL FİYAT ETİKETİ */
+    .price-tag { 
+        font-weight: 700; 
+        color: var(--price-text); 
+        background-color: var(--price-bg);
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.95em;
+    }
+    
+    .item-name { flex: 1; font-weight: 600; }
+
+  </style>
+</head>
+<body>
+
+  <div class="ocean-container">
+    <svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+      <defs>
+        <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+      </defs>
+      <g class="parallax">
+        <use xlink:href="#gentle-wave" x="48" y="0" />
+        <use xlink:href="#gentle-wave" x="48" y="3" />
+        <use xlink:href="#gentle-wave" x="48" y="5" /> 
+      </g>
+    </svg>
+
+    <div class="surface-item i1">🥐</div> 
+    <div class="surface-item i2">🍩</div> 
+    <div class="surface-item i3">🍰</div> 
+    <div class="surface-item i4">☕</div> 
+    <div class="surface-item i5">🍪</div> 
+    <div class="surface-item i6">🥪</div> 
+  </div>
+
+  <main class="card" role="main" aria-labelledby="pageTitle">
+    <h1 id="pageTitle">☕ Sesli Menü</h1>
+    <p class="lead" id="intro">
+      Görme engelli dostu sesli menü sistemi.
+    </p>
+
+    <button id="speakBtn" class="bigbtn">🔊 Menüyü Oku</button>
+    
+    <div id="status" class="status" aria-live="polite">Hazırlanıyor...</div>
+    <div id="liveAnnounce" class="sr-only" aria-live="assertive"></div>
+
+    <hr>
+
+    <section id="content">
+      <p style="text-align:center; font-size: 1.2em; color: var(--text-light); margin-bottom: 20px;">
+        Masa No: <strong style="color: var(--text-main); font-size: 1.3em;">
+        <span id="tableId">—</span></strong>
+      </p>
+      
+      <ul id="kategori">
+
+        <li><ins><strong><span class="emoji">☕</span> Kahveler</strong></ins>
+          <ul>
+              <li><span class="item-name">Espresso</span> <span class="price-tag">120₺</span></li>
+              <li><span class="item-name">Latte</span> <span class="price-tag">125₺</span></li>
+              <li><span class="item-name">Cappuccino</span> <span class="price-tag">135₺</span></li>
+              <li><span class="item-name">Mocha</span> <span class="price-tag">150₺</span></li>
+              <li><span class="item-name">Türk Kahvesi</span> <span class="price-tag">110₺</span></li>
+              <li><span class="item-name">Filtre Kahve</span> <span class="price-tag">115₺</span></li>
+          </ul>
+        </li>
+
+        <li><ins><strong><span class="emoji">🍵</span> Çaylar</strong></ins>
+          <ul>
+            <li><span class="item-name">Demleme Çay</span> <span class="price-tag">75₺</span></li>
+            <li><span class="item-name">Bitki Çayları</span> <span class="price-tag">85₺</span></li>
+            <li><span class="item-name">Kış Çayı</span> <span class="price-tag">95₺</span></li>
+          </ul>
+        </li>
+
+        <li><ins><strong><span class="emoji">🥤</span> Soğuk İçecekler</strong></ins>
+          <ul>
+            <li><span class="item-name">Limonata</span> <span class="price-tag">110₺</span></li>
+            <li><span class="item-name">Soğuk Çay</span> <span class="price-tag">100₺</span></li>
+            <li><span class="item-name">Taze Portakal Suyu</span> <span class="price-tag">130₺</span></li>
+            <li><span class="item-name">Ayran</span> <span class="price-tag">60₺</span></li>
+            <li><span class="item-name">Su</span> <span class="price-tag">40₺</span></li>
+            <li><span class="item-name">Maden Suyu</span> <span class="price-tag">50₺</span></li>
+          </ul>
+        </li>
+
+        <li><ins><strong><span class="emoji">🍦</span> Milkshake & Frozen</strong></ins>
+          <ul>
+            <li><span class="item-name">Çilekli Milkshake</span> <span class="price-tag">160₺</span></li>
+            <li><span class="item-name">Çikolatalı Milkshake</span> <span class="price-tag">160₺</span></li>
+            <li><span class="item-name">Oreo Milkshake</span> <span class="price-tag">170₺</span></li>
+            <li><span class="item-name">Karpuz Frozen</span> <span class="price-tag">150₺</span></li>
+          </ul>
+        </li>
+
+        <li><ins><strong><span class="emoji">🍰</span> Tatlılar</strong></ins>
+          <ul>
+            <li><span class="item-name">San Sebastian</span> <span class="price-tag">180₺</span></li>
+            <li><span class="item-name">Tiramisu</span> <span class="price-tag">170₺</span></li>
+            <li><span class="item-name">Sufle</span> <span class="price-tag">190₺</span></li>
+            <li><span class="item-name">Magnolia</span> <span class="price-tag">150₺</span></li>
+            <li><span class="item-name">Waffle</span> <span class="price-tag">200₺</span></li>
+            <li><span class="item-name">Brownie</span> <span class="price-tag">160₺</span></li>
+          </ul>
+        </li>
+
+        <li><ins><strong><span class="emoji">🥪</span> Atıştırmalıklar</strong></ins>
+          <ul>
+            <li><span class="item-name">Kaşarlı Tost</span> <span class="price-tag">125₺</span></li>
+            <li><span class="item-name">Karışık Tost</span> <span class="price-tag">140₺</span></li>
+            <li><span class="item-name">Club Sandviç</span> <span class="price-tag">160₺</span></li>
+            <li><span class="item-name">Patates Kızartması</span> <span class="price-tag">100₺</span></li>
+            <li><span class="item-name">Sigara Böreği</span> <span class="price-tag">120₺</span></li>
+          </ul>
+        </li>
+
+      </ul>
+
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      const speakBtn = document.getElementById('speakBtn');
+      const status = document.getElementById('status');
+      const tableSpan = document.getElementById('tableId');
+      const kategori = document.getElementById('kategori');
+      let voices = [];
+      let hasStarted = false;
+
+      function getParam(name){ const url = new URL(location.href); return url.searchParams.get(name); }
+      const tableId = getParam('table') || 'Giriş'; tableSpan.textContent = tableId;
+
+      function loadVoices() {
+        voices = speechSynthesis.getVoices();
+        if(voices.length > 0) {
+            status.textContent = "Hazır. Otomatik başlatılıyor...";
+            speakBtn.disabled = false;
+            if(!hasStarted) attemptAutoStart();
+        }
+      }
+      if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = loadVoices;
+      loadVoices();
+
+      function attemptAutoStart(){
+        readMenu().then(()=> hasStarted=true).catch(()=>{
+            status.textContent = "Ses için ekrana dokunun.";
+            const unlock = () => {
+                if(!hasStarted) { readMenu(); hasStarted=true; }
+                ['click','touchstart','scroll'].forEach(e => document.body.removeEventListener(e, unlock));
+            };
+            ['click','touchstart','scroll'].forEach(e => document.body.addEventListener(e, unlock));
+        });
+      }
+
+      function speakText(text){
+        return new Promise((resolve, reject)=>{
+          const u = new SpeechSynthesisUtterance(text);
+          u.lang = "tr-TR"; u.rate = 1.05;
+          const trVoice = voices.find(v => v.lang.includes('tr')) || voices[0];
+          if(trVoice) u.voice = trVoice;
+          u.onend = resolve; 
+          u.onerror = (e) => e.error === 'not-allowed' ? reject(e) : resolve();
+          speechSynthesis.speak(u);
+        });
+      }
+
+      const map = {"Cappuccino":"Kapuçino", "Mocha":"Moka", "Waffle":"Vafıl", "Brownie":"Bıravni", "Club":"Kılab", "Frozen":"Frozın", "Magnolia":"Manolya"};
+
+      async function readMenu(){
+        if(hasStarted && speechSynthesis.speaking) return;
+        hasStarted = true; speechSynthesis.cancel();
+        
+        speakBtn.disabled = true; speakBtn.textContent = "🔊 Okunuyor...";
+        status.textContent = "Menü okunuyor...";
+        
+        try {
+            await speakText("Hoşgeldiniz. Menüyü sunuyorum.");
+            const cats = kategori.querySelectorAll(":scope > li");
+            for(const cat of cats){
+                if(!hasStarted) break;
+                
+                cat.querySelector("ins strong").style.color = "var(--highlight)";
+                cat.querySelector("ins strong").style.borderColor = "var(--highlight)";
+                cat.scrollIntoView({behavior:"smooth", block:"center"});
+                
+                // --- DÜZELTME BURADA YAPILDI ---
+                // Emojiyi başlıktan temizleyip sadece ismi okuyoruz.
+                let catText = cat.querySelector("ins strong").innerText;
+                const emojiSpan = cat.querySelector(".emoji");
+                if (emojiSpan) {
+                    // Emoji karakterini metinden çıkarıyoruz
+                    catText = catText.replace(emojiSpan.innerText, "").trim();
+                }
+                await speakText(catText);
+                // -------------------------------
+
+                const items = cat.querySelectorAll("ul > li");
+                for(const item of items){
+                   if(!hasStarted) break;
+                   
+                   item.style.backgroundColor = "#fff3e0"; 
+                   item.style.transform = "scale(1.02)";
+                   
+                   let text = item.querySelector(".item-name").innerText;
+                   let price = item.querySelector(".price-tag").innerText.replace("₺", " lira");
+                   for(let k in map) text = text.replace(new RegExp(k, "gi"), map[k]);
+                   
+                   await speakText(text + ", " + price);
+                   
+                   item.style.backgroundColor = "transparent"; item.style.transform = "scale(1)";
+                }
+                cat.querySelector("ins strong").style.color = "";
+                cat.querySelector("ins strong").style.borderColor = "";
+            }
+            status.textContent = "Tamamlandı."; speakBtn.textContent = "🔊 Tekrar Oku";
+        } catch(e){ console.warn(e); } finally { speakBtn.disabled = false; hasStarted = false; }
+      }
+
+      speakBtn.addEventListener("click", readMenu);
+    })();
+  </script>
+</body>
+</html>
